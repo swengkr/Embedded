@@ -12,6 +12,8 @@ ESP32-C3 Super Mini 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전
 - 알림 부저음
 - 부하 : COB(Chip On Board) LED
 
+> 💬 이미지 클릭 시 유투브 영상 재생
+
 [![](https://github.com/swengkr/Embedded/blob/main/ESP32/RemotePowerControl/project.jfif)](https://youtu.be/eueyBGA4v88)
 
 ### 플러터 앱 소스 코드
