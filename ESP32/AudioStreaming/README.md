@@ -1,7 +1,7 @@
 ESP32-C3 Super Mini & 무선(WiFi) 기반 오디오 스트리밍(RTP)을 구현했습니다.
 
 ### 구성 요소 & 스펙
-- MCU : ESP32-C3 Super Mini
+- MCU 모듈 : ESP32-C3 Super Mini
 - DAC : PCM5102A (I2S)
 - Streaming Server : GStreamer (Windows)
 - Streaming Protocol : RTP (UDP)
