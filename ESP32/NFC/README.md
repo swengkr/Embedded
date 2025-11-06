@@ -1,7 +1,255 @@
-ESP32-C3 모듈과 PN-532 NFC Reader를 기반으로 출입관리시스템 데모를 만들었습니다.
+ESP32-C3 Core 모듈과 PN-532 NFC Reader를 기반으로 출입관리시스템 데모를 제작했습니다.
 
+### 구성 요소
 - 컴퓨팅 모듈 : ESP32-C3 Core
 - NFC Reader : PN-532(I2C)
 - 정전식 스위치 : HW-763 (감도 보정: 20pF 콘덴서) ⇒ 카드 등록 모드 시작/취소/종료
 - 오디오 재생 : DFPlayer Mini
 - 도어 개폐 : SG-90 Servo
+
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/NFC/project.jfif)](https://youtu.be/9dj0bzYEIGw)
+
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/NFC/project2.jfif)](https://youtu.be/9dj0bzYEIGw)
+
+### 회로 결선도
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/NFC/wiring.png)](https://youtu.be/9dj0bzYEIGw)
+
+### 아두이노 라이브러리
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/NFC/library.png)](https://youtu.be/9dj0bzYEIGw)
+
+### ESP32-C3 소스 코드(Arduino)
+```cpp
+#include <Wire.h>
+#include <Arduino.h>
+#include <Adafruit_PN532.h>
+#include "DFRobotDFPlayerMini.h"
+#include <ESP32Servo.h>
+#include <SHA2Builder.h>
+
+// ----------------------------------------------------
+// 핀 정의
+// ----------------------------------------------------
+#define PN532_SDA (2) // 예시: GPIO 2
+#define PN532_SCL (3) // 예시: GPIO 3
+#define DF_TXD    (4)
+#define DF_RXD    (5)
+#define DF_BUSY   (6) // DFPlayer BUSY 핀 연결 (LOW = 재생 중)
+#define SWITCH    (7)
+#define SERVO     (9)
+#define LED       (10)
+
+// PN532 객체 생성: IRQ와 RESET 핀은 사용하지 않으므로 -1로 설정
+// I2C 핀은 Wire.begin()을 통해 지정되므로 -1로 처리합니다.
+Adafruit_PN532 pn532(-1, -1); 
+HardwareSerial hwSerial(1);
+DFRobotDFPlayerMini dfPlayer;
+Servo servo;
+
+int8_t sysState = 0;
+uint8_t uid[2][7];
+uint8_t regCards = 0;
+uint8_t newCards = 0;
+uint8_t regUID[5][7];
+bool ledState = false;
+unsigned long triggerTime = 0;
+TaskHandle_t nfcTaskHandle;
+
+// NFC 읽기 태스크
+void nfcTask(void *parameter) {
+  while (true) {
+    bool isPlaying = (digitalRead(DF_BUSY) == LOW);
+
+    if (!isPlaying) {
+      uint8_t length;
+      bool exists = false;
+
+      // 카드를 감지하고 읽습니다. (카드가 감지될 때까지 대기하거나 타임아웃됩니다)
+      if (pn532.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid[0], &length)) {
+        triggerTime = millis();
+
+        Serial.print("NFC 카드 감지(");
+        Serial.print(length, DEC);
+        Serial.print("):");
+
+        // UID 값을 16진수로 출력
+        for (uint8_t i = 0; i < length; i++) {
+          Serial.print(" 0x");
+          Serial.print(uid[0][i], HEX);
+        }
+        Serial.println();
+
+        for (uint8_t index = 0; index < regCards; ++index) {
+          if (regUID[index][0] == uid[0][0] &&
+            regUID[index][1] == uid[0][1] &&
+            regUID[index][2] == uid[0][2] &&
+            regUID[index][3] == uid[0][3]) {
+              exists = true;
+              if (sysState == 0) {
+                // 오디오: 문이 열렸습니다.
+                dfPlayer.play(6);
+                Serial.println("오디오: 문이 열렸습니다");
+                for (int pos = 125; pos >= 20; pos -= 5) { 
+                  servo.write(pos);
+                  delay(10);
+                }
+                delay(1000);
+                for (int pos = 20; pos <= 125; pos += 5) { 
+                  servo.write(pos);
+                  delay(10);
+                }
+              } else if (sysState == 1 || sysState == 2) {
+                // 오디오: 이미 등록한 카드입니다.
+                dfPlayer.play(9);
+                Serial.println("오디오: 이미 등록한 카드입니다");
+              }
+              break;
+            }
+        }
+        if (!exists) {
+          if (sysState == 1 || sysState == 2) {
+            if (regCards == 5) {
+              // 오디오: 더 이상 카드를 등록할 수 없습니다
+              dfPlayer.play(11);
+              Serial.println("오디오: 더 이상 카드를 등록할 수 없습니다");
+            } else {
+              // 새 카드 ID 복사
+              memcpy(regUID[regCards++], uid[0], sizeof(uid[0]));
+              // 오디오: 새 카드를 등록했습니다
+              dfPlayer.play(10);
+              Serial.println("오디오: 새 카드를 등록했습니다");
+              ++newCards;
+            }
+          } else {
+            // 오디오: 미등록 카드입니다.
+            dfPlayer.play(7);
+            Serial.println("오디오: 미 등록 카드입니다");
+          }
+          vTaskDelay(pdMS_TO_TICKS(300));
+        }
+      }
+      continue;
+    }
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+
+void setup(void) {
+  pinMode(DF_BUSY, INPUT);
+  pinMode(SWITCH, INPUT);
+  pinMode(LED, OUTPUT);
+
+  Serial.begin(115200);
+  Serial.println("출입관리시스템 시작");
+
+  // eFuse MAC 읽기 (칩 고유값)
+  uint64_t chipid = ESP.getEfuseMac();
+  uint8_t mac[6];
+  char macStr[18];  // "AA:BB:CC:DD:EE:FF" + null = 18 bytes
+
+  for (int i = 0; i < 6; i++) {
+    mac[i] = (chipid >> (8 * (5 - i))) & 0xFF;
+  }
+
+  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+  // Create SHA-256 (default hash size)
+  SHA2Builder sha2_256;
+  sha2_256.begin();
+  sha2_256.add(macStr);
+  sha2_256.calculate();
+  String hash_256 = sha2_256.toString();
+  Serial.printf("Base MAC: %s (%s)\n", macStr, hash_256.c_str());
+
+  servo.attach(SERVO);
+  servo.write(130);
+
+  // I2C 버스 초기화: PN532 객체 초기화보다 먼저 호출되어야 합니다.
+  Wire.begin(PN532_SDA, PN532_SCL); 
+
+  // PN532 라이브러리 초기화
+  pn532.begin();
+
+  uint32_t versiondata = pn532.getFirmwareVersion();
+  if (!versiondata) {
+    Serial.println("PN532 모듈을 찾을 수 없습니다. 연결을 확인하세요!");
+    while (1); // 모듈을 찾을 때까지 무한 대기
+  }
+
+  // 펌웨어 버전 정보 출력
+  Serial.print("디바이스 찾음: PN5"); 
+  Serial.print((versiondata>>24) & 0xFF, HEX);
+  Serial.print(" (펌웨어: "); 
+  Serial.print((versiondata>>16) & 0xFF, DEC); 
+  Serial.print('.'); 
+  Serial.print((versiondata>>8) & 0xFF, DEC);
+  Serial.println(")");
+
+  // 일반적인 카드 리더 모드로 설정
+  pn532.SAMConfig();
+
+  hwSerial.begin(9600, SERIAL_8N1, DF_RXD, DF_TXD);
+  // DF Player Mini 초기화(reset 해제 => 팝 노이즈 제거)
+  if (!dfPlayer.begin(hwSerial, true, false)) {
+    Serial.println("DFPlayer Mini 연결 실패");
+    while (true);
+  }
+
+  dfPlayer.volume(25);
+  // 오디오: 출입관리시스템을 시작합니다.
+  dfPlayer.play(1);
+
+  // NFC 읽기용 태스크 생성
+  xTaskCreatePinnedToCore(
+    nfcTask,         // 태스크 함수
+    "NFCTask",       // 이름
+    4096,            // 스택 크기
+    NULL,            // 매개변수
+    1,               // 우선순위
+    &nfcTaskHandle,  // 핸들
+    0                // 코어 (ESP32-C3는 단일코어지만 호환 위해 명시)
+  );
+}
+
+void loop(void) {
+  if (sysState == 0) {
+    if (digitalRead(SWITCH) == HIGH) {
+      if (triggerTime == 0) {
+        triggerTime = millis();
+      } else if (millis() - triggerTime > 1000) {
+        triggerTime = millis();
+        sysState = 1; // 네트워크 설정 시작
+        // 오디오: 카드 등록을 시작합니다.
+        dfPlayer.play(8);
+        Serial.println("카드 등록 시작");
+        newCards = 0;
+      }
+    } else {
+      triggerTime = 0;
+    }
+  } else {
+    digitalWrite(LED, ledState ^= true);
+    if (sysState == 1) {
+      if (digitalRead(SWITCH) == LOW) {
+        sysState = 2;
+      }
+    } else if (sysState == 2) {
+      int8_t state = 1;
+      if (millis() - triggerTime > 60000) {
+        state = -1; // 카드 등록 시간 초과
+      } else if (digitalRead(SWITCH) == HIGH) {
+        state = -2; // 카드 등록 취소
+      }
+      if (state != 1) {
+        sysState = 0;
+        triggerTime = 0;
+        if (0 < newCards) {
+          state = 2;
+        }
+        Serial.printf("카드 등록 %s\n", state == 2 ? "종료" : state == -1 ? "시간 초과" : "취소");
+        digitalWrite(LED, ledState = false);
+      }
+    }
+  }
+  delay(100);
+}
+```
