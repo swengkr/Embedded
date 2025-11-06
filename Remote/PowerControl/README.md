@@ -15,3 +15,5 @@ ESP32-C3 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전원을 제�
 - Bluetooth 온라인 LED (점멸: 연결 중, ON: 연결됨)
 
 - 알림 부저음
+
+![](https://github.com/swengkr/Embedded/blob/main/Remote/PowerControl/project.jfif)
