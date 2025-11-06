@@ -9,6 +9,9 @@
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project2.jpg)
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project3.jpg)
 
+### 회로 결선도
+![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/circuit_diagram.png)
+
 ### PIC MCU 소스 코드 (MPLAB X IDE)
 ```c
 #include <xc.h>
