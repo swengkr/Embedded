@@ -254,3 +254,22 @@ void loop(void) {
   delay(100);
 }
 ```
+
+### TTS 음원 생성 소스 코드 (Python)
+```python
+import asyncio
+#Microsoft Edge TTS 사용
+import edge_tts
+
+TEXT = "생성할 텍스트를 입력하세요."
+#VOICE = "ko-KR-InJoonNeural"  # 한국어 남성 음성
+VOICE = "ko-KR-SunHiNeural"  # 한국어 여성 음성
+OUTPUT = "tts_output.mp3"
+
+async def main():
+    communicate = edge_tts.Communicate(TEXT, VOICE)
+    await communicate.save(OUTPUT)
+    print(f"[완료] {OUTPUT} 파일 생성됨")
+
+asyncio.run(main())
+```
