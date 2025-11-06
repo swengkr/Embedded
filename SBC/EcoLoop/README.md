@@ -8,3 +8,70 @@
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project.jpg)
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project2.jpg)
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project3.jpg)
+
+### PIC MCU 소스 코드 (MPLAB X IDE)
+```c
+#include <xc.h>
+
+#pragma config FOSC = INTRCIO
+#pragma config WDTE = OFF
+#pragma config PWRTE = ON
+#pragma config MCLRE = OFF
+#pragma config BOREN = OFF
+#pragma config CP = OFF
+#pragma config CPD = OFF
+
+#define _XTAL_FREQ          4000000UL
+
+#define MOSFET              GP0
+#define SBC_SHUTDOWN        GP1
+#define ALWAYS_ON           GP5
+
+#define CHECK_PERIOD_MS     100UL
+#define COUNTS_30_SECONDS   300UL
+
+#define MINUTE_COUNT        600UL
+#define HALF_HOUR_COUNT     (MINUTE_COUNT * 30UL)
+
+volatile unsigned long delay_count = 0;
+volatile unsigned char is_shutting_down = 0;
+
+void Initialize(void)
+{
+    CMCON = 0x07;
+    ANSEL = 0x00;
+
+    TRISIO0 = 0;
+    TRISIO1 = 1;
+    TRISIO5 = 1;
+
+    MOSFET = 1;
+    INTCON = 0x00;
+}
+
+void main(void)
+{
+    Initialize();
+
+    while (1)
+    {
+        if (ALWAYS_ON == 0) {
+            MOSFET = 1;
+        } else if (is_shutting_down == 0) {
+            if (SBC_SHUTDOWN == 1) {
+                is_shutting_down = 1;
+                delay_count = 0;
+            }
+        } else if (++delay_count >= COUNTS_30_SECONDS) {
+            MOSFET = 0;
+            __delay_ms(CHECK_PERIOD_MS);
+            for (delay_count = 0; delay_count < HALF_HOUR_COUNT && ALWAYS_ON == 1; delay_count++) {
+                __delay_ms(CHECK_PERIOD_MS);
+            }
+            MOSFET = 1;
+            is_shutting_down = 0;
+        }
+        __delay_ms(CHECK_PERIOD_MS);
+    }
+}
+```
