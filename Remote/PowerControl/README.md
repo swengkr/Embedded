@@ -901,9 +901,10 @@ class _ScanDeviceModalState extends State<ScanDeviceModal> {
     );
   }
 }
+```
 
-## ESP32-C3 소스 코드 (Arduino IDE)
-
+## ESP32-C3 소스 코드 (Arduino)
+```cpp
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
