@@ -1,5 +1,6 @@
 Arduino Uno 와 HC-SR04 초음파 센서를 기반으로 레이더 데모를 제작했습니다.
 
+### 구성 요소
 - 컴퓨팅 모듈 : Arduino Uno
 - 초음파 센서 : HC-SR04
 - 180도 회전 : SG-90 Servo
