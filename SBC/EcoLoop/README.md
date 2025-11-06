@@ -65,6 +65,7 @@ func main() {
 ```
 
 ### PIC MCU 소스 코드 (MPLAB X IDE)
+> 💬 펌웨어를 MCU에 플래시하기 위한 프로그래머 필요
 ```c
 #include <xc.h>
 
