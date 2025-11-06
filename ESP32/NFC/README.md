@@ -1,4 +1,4 @@
-ESP32-C3 Core 모듈과 PN-532 NFC Reader를 기반으로 출입관리시스템 데모를 제작했습니다.
+ESP32-C3 Core 모듈과 PN-532 NFC Reader를 기반으로 서보 모터 제어 데모를 제작했습니다.
 
 ### 구성 요소
 - 컴퓨팅 모듈 : ESP32-C3 Core (WeAct Studio)
