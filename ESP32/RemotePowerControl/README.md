@@ -1,7 +1,9 @@
 ESP32-C3 Super Mini 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전원을 제어하는 데모를 제작했습니다.
 
-### 주요 기능 
+### 구성 요소
+- MCU 모둘 : ESP32-C3 Super Mini
 
+### 주요 기능 
 - 수동 ON/OFF 제어
 - Bluetooth 장치 검색 / 등록 / 삭제
 - 장치 원격 ON/OFF 제어
