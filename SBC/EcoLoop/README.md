@@ -4,3 +4,7 @@
 - 컴퓨팅 모듈 : 라즈베리파이1 모델 B+
 - Wakeup : PIC 12F675
 - DC 전원 제어 : MOSFET
+
+![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project.jpg)
+![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project2.jpg)
+![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project3.jpg)
