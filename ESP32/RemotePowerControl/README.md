@@ -1,4 +1,4 @@
-ESP32-C3 Super Mini 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전원을 제어합니다.
+ESP32-C3 Super Mini 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전원을 제어하는 데모를 제작했습니다.
 
 ### 주요 기능 
 
