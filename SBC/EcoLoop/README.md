@@ -12,6 +12,58 @@
 ### 회로 결선도
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/circuit_diagram.png)
 
+### 라즈베리파이 소스 코드 (Go)
+```go
+package main
+
+import "C"
+import (
+	"errors"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"os/exec"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/host/v3"
+)
+
+func main() {
+    var gGPIO17, gGPIO27 gpio.PinIO
+	// periph 초기화
+	if _, err := host.Init(); err != nil {
+		log.Fatal(err)
+	}
+	if gGPIO17 = gpioreg.ByName("GPIO17"); gGPIO17 == nil {
+		log.Fatal("GPIO17 찾을 수 없음")
+	}
+	if gGPIO27 = gpioreg.ByName("GPIO27"); gGPIO27 == nil {
+		log.Fatal("GPIO27 찾을 수 없음")
+	}
+	// GPIO 모드 설정(17:출력, 27:입력)
+	gGPIO17.Out(gpio.Low)
+	gGPIO27.In(gpio.PullUp, gpio.NoEdge)
+    ...
+    for {
+        // *** 주기적인 작업 실행 ***
+        ...
+        // Sleep 시작
+        if gGPIO27.Read() == gpio.High {
+            // PIC MCU 에 Sleep 요청
+            gGPIO17.Out(gpio.High)
+            // 리눅스 Shutdown 실행
+            cmd := exec.Command("shutdown", "now")
+            if _, err := cmd.CombinedOutput(); err != nil {
+                log.Fatalf("Shutdown 실패: %v", err)
+            } else {
+                return
+            }
+        }
+    }
+}
+```
+
 ### PIC MCU 소스 코드 (MPLAB X IDE)
 ```c
 #include <xc.h>
