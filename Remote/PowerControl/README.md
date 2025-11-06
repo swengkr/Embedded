@@ -18,7 +18,7 @@ ESP32-C3 와 Android 앱 사이 Bluetooth 기반 MOSFET 으로 DC 전원을 제�
 
 [![](https://github.com/swengkr/Embedded/blob/main/Remote/PowerControl/project.jfif)](https://youtu.be/eueyBGA4v88)
 
-#Flutter App Source Code
+## 플러터 앱 소스 코드
 ```dart
 import 'dart:async';
 import 'dart:convert';
@@ -901,9 +901,8 @@ class _ScanDeviceModalState extends State<ScanDeviceModal> {
     );
   }
 }
- 
 
-* ESP32-C3 소스 코드 (Arduino IDE)
+## ESP32-C3 소스 코드 (Arduino IDE)
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
