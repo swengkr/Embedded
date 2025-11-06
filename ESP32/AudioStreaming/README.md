@@ -11,10 +11,10 @@ ESP32-C3 Super Mini & 무선(WiFi) 기반 오디오 스트리밍(RTP)을 구현�
 - Graphic Equalizer : LED Bar
 - Speaker
 
-[![](https://github.com/swengkr/Embedded/blob/main/ESP32/AudioStreaming/Circuit_diagram.png)](https://youtube.com/shorts/i4WvUcjz7jY)
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/AudioStreaming/project.png)](https://youtube.com/shorts/i4WvUcjz7jY)
 
 ### 회로 결선도
-[![](https://github.com/swengkr/Embedded/blob/main/ESP32/AudioStreaming/Circuit_diagram.png)](https://youtube.com/shorts/i4WvUcjz7jY)
+[![](https://github.com/swengkr/Embedded/blob/main/ESP32/AudioStreaming/circuit_diagram.png)](https://youtube.com/shorts/i4WvUcjz7jY)
 
 ### 스트리밍 서버 실행 명령
 ```shell
