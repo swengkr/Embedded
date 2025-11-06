@@ -10,6 +10,8 @@ Arduino Uno 와 HC-SR04 초음파 센서를 기반으로 레이더 데모를 제
 
 [![](https://github.com/swengkr/Embedded/blob/main/Arduino/Radar/project.jfif)](https://youtu.be/qMIqhY2laqY)
 
+[![](https://github.com/swengkr/Embedded/blob/main/Arduino/Radar/processing.gif)
+
 ### Arduino Uno 소스 코드
 ```cpp
 // Arduino Uno 표준 Servo 라이브러리 사용
