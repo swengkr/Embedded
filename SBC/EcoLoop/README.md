@@ -5,6 +5,8 @@
 - Wakeup : PIC 12F675
 - DC 전원 제어 : MOSFET
 
+> 💬 이미지 클릭 시 유투브 영상 재생
+
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project.jpg)
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project2.jpg)
 ![](https://github.com/swengkr/Embedded/blob/main/SBC/EcoLoop/project3.jpg)
