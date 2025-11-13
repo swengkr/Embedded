@@ -10,6 +10,10 @@ Arduino Uno 와 HC-SR04 초음파 센서를 기반으로 레이더 데모를 제
 
 [![](https://github.com/swengkr/Embedded/blob/main/Arduino/Radar/project.jfif)](https://youtu.be/qMIqhY2laqY)
 
+### 회로 결선도
+[![](https://github.com/swengkr/Embedded/blob/main/Arduino/Radar/circuit_diagram.png)](https://youtu.be/qMIqhY2laqY)
+
+### Processing GUI
 [![](https://github.com/swengkr/Embedded/blob/main/Arduino/Radar/processing.gif)](https://youtu.be/qMIqhY2laqY)
 
 ### Arduino Uno 소스 코드
